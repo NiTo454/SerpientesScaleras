@@ -24,7 +24,7 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
   </div>
 </Layout>
 
-<style>
+<style is:global>
   /* ... Todo tu CSS original se mantiene exactamente igual ... */
   .game-container {
     display: flex;
@@ -87,27 +87,23 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
   }
 
   .screen {
-    background: rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(22px);
-    color: #1e3a5f;
-    padding: 2rem 4rem;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.45), rgba(30, 41, 59, 0.25));
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    color: #ffffff;
+    padding: 2.5rem 5rem;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-clip: padding-box;
     box-shadow: 
-      0 16px 40px rgba(15, 23, 42, 0.12),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.55);
-    margin-bottom: 2rem;
+      0 24px 60px rgba(0, 0, 0, 0.4), 
+      inset 0 1px 1px rgba(255, 255, 255, 0.12),
+      inset 0 -1px 2px rgba(255, 255, 255, 0.05),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
+    margin-bottom: 2.5rem;
     min-width: 300px;
     position: relative;
-  }
-
-  .screen::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 26px;
-    background: rgba(255, 255, 255, 0.18);
-    z-index: -1;
+    z-index: 1;
   }
 
   #math-question {
@@ -115,7 +111,8 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     margin: 0;
     font-family: 'Fredoka', monospace;
     letter-spacing: 5px;
-    color: #1e1b4b;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 
   .fruits-container {
@@ -123,61 +120,74 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     gap: 1.5rem;
     justify-content: center;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
   }
 
-  :global(.fruit-btn) {
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: #ffffff;
-    font-size: 2rem;
-    font-weight: 800;
-    padding: 1.4rem 2rem;
+  .fruit-btn {
     border-radius: 28px;
     cursor: pointer;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     min-width: 170px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+    font-size: 2rem;
+    font-weight: 800;
+    padding: 1.4rem 2rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(16px);
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
-  :global(.fruit-btn::before) {
+  .fruit-btn::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 40%, transparent 100%);
-    pointer-events: none;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: all 0.6s ease;
+    transform: skewX(-25deg);
   }
 
-  :global(.fruit-btn:hover) {
-    transform: translateY(-10px) scale(1.03);
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
+  .fruit-btn:hover::before {
+    left: 150%;
   }
 
-  :global(.fruit-btn.blue-card) {
-    background: rgba(59, 130, 246, 0.24);
-    border-color: rgba(59, 130, 246, 0.55);
+  .fruit-btn:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
   }
 
-  :global(.fruit-btn.green-card) {
-    background: rgba(16, 185, 129, 0.24);
-    border-color: rgba(16, 185, 129, 0.55);
+  .fruit-btn.blue-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(59, 130, 246, 0.2));
+    border: 1px solid rgba(59, 130, 246, 0.5);
   }
 
-  :global(.fruit-btn.red-card) {
-    background: rgba(239, 68, 68, 0.24);
-    border-color: rgba(239, 68, 68, 0.55);
+  .fruit-btn.green-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.2));
+    border: 1px solid rgba(16, 185, 129, 0.5);
   }
 
-  :global(.fruit-btn.yellow-card) {
-    background: rgba(234, 179, 8, 0.24);
-    border-color: rgba(234, 179, 8, 0.55);
-    color: #1f2937;
+  .fruit-btn.red-card {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.5), rgba(239, 68, 68, 0.2));
+    border: 1px solid rgba(239, 68, 68, 0.5);
   }
 
-  :global(.fruit-btn:active) {
+  .fruit-btn.yellow-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.55), rgba(245, 158, 11, 0.25));
+    border: 1px solid rgba(245, 158, 11, 0.5);
+  }
+
+  .fruit-btn:active {
     transform: translateY(-2px) scale(0.98);
   }
 
@@ -186,14 +196,15 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     font-weight: bold;
     margin-top: 2rem;
     min-height: 2rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
 
-  :global(.correct) {
-    color: #16a34a;
+  .correct {
+    color: #22c55e;
     animation: correctPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  :global(.incorrect) {
+  .incorrect {
     color: #ef4444;
     animation: shake 0.5s ease;
   }
@@ -208,6 +219,62 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     25% { transform: translateX(-10px); }
     75% { transform: translateX(10px); }
   }
+
+  @media (max-width: 600px) {
+    .header-beta {
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .level-title {
+      font-size: 1.8rem;
+    }
+
+    .timer-box {
+      font-size: 1.1rem;
+      padding: 0.4rem 1rem;
+      border-radius: 12px;
+    }
+
+    .screen {
+      padding: 1.5rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #math-question {
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+
+    .fruits-container {
+      gap: 1rem;
+      width: 100%;
+    }
+
+    :global(.fruit-btn) {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1.4rem;
+      padding: 1.1rem 1.5rem;
+      border-radius: 16px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    #math-question {
+      font-size: 2rem;
+    }
+    :global(.fruit-btn) {
+      font-size: 1.2rem;
+    }
+  }
+</style>
 </style>
 
 <script>
