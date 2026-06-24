@@ -472,6 +472,8 @@ import ModalBeta from '../components/ModalBeta.astro';
   
   import confetti from 'canvas-confetti';
   import { turnManager } from '../lib/turnManager';
+  import { ChallengePool } from '../utils/fracGeo';
+  const challengePool = new ChallengePool('6to', 3);
   import { generateMathQuestion } from '../utils/mathgenerator.ts';
   import { audioController } from '../utils/audioController.ts';
 
@@ -579,53 +581,15 @@ import ModalBeta from '../components/ModalBeta.astro';
       startTimer(challenge.timeLimit);
       renderOptions(challenge.options);
     } else {
-      const isMultiplication = Math.random() > 0.5;
-      let var1, var2, correctAnswer, operator;
-
-      if (isMultiplication) {
-        var1 = Math.floor(Math.random() * 10) + 2;
-        var2 = Math.floor(Math.random() * 10) + 2;
-        correctAnswer = var1 * var2;
-        operator = '×';
-      } else {
-        var2 = Math.floor(Math.random() * 9) + 2;
-        correctAnswer = Math.floor(Math.random() * 10) + 2;
-        var1 = correctAnswer * var2;
-        operator = '÷';
-      }
-
-      let wrong1 = correctAnswer + Math.floor(Math.random() * 4) + 1;
-      let wrong2 = Math.max(1, correctAnswer - (Math.floor(Math.random() * 4) + 1));
-
-      if (wrong1 === wrong2) wrong1 += 1;
-      if (wrong1 === correctAnswer) wrong1 += 2;
-      if (wrong2 === correctAnswer) wrong2 -= 1;
-
-      const options = [
-        { value: correctAnswer, isCorrect: true },
-        { value: wrong1, isCorrect: false },
-        { value: wrong2, isCorrect: false }
-      ];
-
-      options.sort(() => Math.random() - 0.5);
-
+      const question = generateMathQuestion('Beta');
       if (questionEl) {
-        questionEl.textContent = `${var1} ${operator} ${var2} = ?`;
+        questionEl.textContent = question.text;
         questionEl.style.fontSize = '4rem';
         questionEl.style.letterSpacing = '5px';
       }
-
-      renderOptions(options);
+      renderOptions(question.options);
+      startTimer(15);
     }
-    startTimer(15);
-    const question = generateMathQuestion('Beta');
-
-    if (questionEl) {
-      questionEl.textContent = question.text;
-    }
-
-    renderOptions(question.options);
-    startTimer();
   }
 
   function renderOptions(options: { value: number; isCorrect: boolean }[]) {
