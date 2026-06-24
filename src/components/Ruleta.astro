@@ -150,7 +150,7 @@
       rotacionActual += (gradosFinales - resto);
 
       ruleta.style.transform = `rotate(${rotacionActual}deg)`;
-
+      // 1. ESPERAR 3 SEGUNDOS A QUE LA RULETA DETENGA SU GIRO ANIMADO
       setTimeout(() => {
         audioController.stop('ruleta');
         resultadoTexto.innerText = `¡Avanzas ${numeroGanador} casillas!`;
@@ -158,13 +158,15 @@
         // LANZAR EVENTO CON EL NÚMERO (Por si tu tablero necesita mover la ficha)
         document.dispatchEvent(new CustomEvent('avanzarFicha', { detail: { pasos: numeroGanador } }));
 
-        // Esperar 2.5 segundos para que el niño vea el número, esconder la ruleta y pedir nueva pregunta
+        // 2. LE DAMOS 3.5 SEGUNDOS MÁS para que los niños vean la ruleta detenida,
+        // miren el mapa, vean cómo avanza su avatar 🦁 y celebren la casilla.
         setTimeout(() => {
           zonaRuleta.classList.add('oculto');
           btnGirar.disabled = false;
-          // Le avisamos a Alpha que ya puede cambiar de pregunta
+          
+          // Ahora sí, limpiamente le avisamos a Beta que pase a la siguiente pregunta
           document.dispatchEvent(new CustomEvent('siguienteTurno'));
-        }, 2500);
+        }, 3500); // 👈 Aumentado a 3.5 segundos para dar una pausa natural de juego
 
       }, 2000);
     });

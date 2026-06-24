@@ -32,6 +32,8 @@ import ModalBeta from '../components/ModalBeta.astro';
 
     <p id="feedback-message" class="feedback"></p>
 
+    <TableroMapa />
+
     <Ruleta />
     <RuletaRetroceso /> <!-- 2. AGREGAMOS EL COMPONENTE EN EL HTML -->
   </div>
@@ -39,15 +41,15 @@ import ModalBeta from '../components/ModalBeta.astro';
 
 <style is:global>
   .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 2rem;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; 
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
@@ -641,8 +643,24 @@ import ModalBeta from '../components/ModalBeta.astro';
     generateQuestion(); 
   });
 
+  // 5. ACTUALIZADO: Enviar el movimiento detallado hacia el TableroMapa
   document.addEventListener('avanzarFicha', (e: any) => {
-    console.log(`Beta: El jugador saca dado de ${e.detail.pasos}. Mover ficha.`);
+    const pasos = e.detail.pasos;
+    
+    try {
+      const datosTurno = turnManager.obtenerTurnoActual();
+      const equipoActivo = datosTurno.equipo;
+    
+      document.dispatchEvent(new CustomEvent('renderizarMovimientoTablero', {
+        detail: {
+          equipoName: equipoActivo.name,
+          equipoAvatar: equipoActivo.avatar,
+          pasos: pasos
+        }
+      }));
+    } catch (err) {
+      console.error("Error enviando datos del turno al tablero:", err);
+    }
   });
 
   generateQuestion();
