@@ -553,11 +553,6 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
   //@ts-ignore
   import confetti from 'canvas-confetti';
   import { turnManager } from '../lib/turnManager';
-  import { ChallengePool } from '../utils/fracGeo';
-
-  // Pool de retos sin repetición – se rota todo el catálogo antes de volver a repetir
-  const challengePool = new ChallengePool('6to', 3);
-  import { generateMathQuestion } from '../utils/mathGenerator';
 
   // Inicializar TurnManager y UI
   try {
@@ -655,31 +650,42 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     isAnswering = false;
     if (feedbackEl) feedbackEl.textContent = "";
 
-    // 50% de probabilidad de usar un reto de fracciones/geometría y 50% de operaciones simples
-    const useChallenge = Math.random() > 0.5;
+    const isMultiplication = Math.random() > 0.5;
+    let var1, var2, correctAnswer, operator;
 
-    if (useChallenge) {
-      const challenge = challengePool.next();
-      if (questionEl) {
-        questionEl.innerHTML = challenge.htmlQuestion;
-        questionEl.style.fontSize = '';
-        questionEl.style.letterSpacing = '';
-      }
-      startTimer(challenge.timeLimit);
-      renderOptions(challenge.options);
+    if (isMultiplication) {
+      var1 = Math.floor(Math.random() * 10) + 2;
+      var2 = Math.floor(Math.random() * 10) + 2;
+      correctAnswer = var1 * var2;
+      operator = '×';
     } else {
-      const question = generateMathQuestion('Beta');
-
-      if (questionEl) {
-        // Restaurar estilos para preguntas normales
-        questionEl.style.fontSize = '4rem';
-        questionEl.style.letterSpacing = '5px';
-        questionEl.textContent = question.text;
-      }
-
-      renderOptions(question.options);
-      startTimer(15);
+      var2 = Math.floor(Math.random() * 9) + 2;
+      correctAnswer = Math.floor(Math.random() * 10) + 2;
+      var1 = correctAnswer * var2;
+      operator = '÷';
     }
+
+    let wrong1 = correctAnswer + Math.floor(Math.random() * 4) + 1;
+    let wrong2 = Math.max(1, correctAnswer - (Math.floor(Math.random() * 4) + 1));
+
+    if (wrong1 === wrong2) wrong1 += 1;
+    if (wrong1 === correctAnswer) wrong1 += 2;
+    if (wrong2 === correctAnswer) wrong2 -= 1;
+
+    const options = [
+      { value: correctAnswer, isCorrect: true },
+      { value: wrong1, isCorrect: false },
+      { value: wrong2, isCorrect: false }
+    ];
+
+    options.sort(() => Math.random() - 0.5);
+
+    if (questionEl) {
+      questionEl.textContent = `${var1} ${operator} ${var2} = ?`;
+    }
+
+    renderOptions(options);
+    startTimer();
   }
 
   function renderOptions(options: { value: number; isCorrect: boolean }[]) {
