@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN BETA
+import TableroMapa from '../components/TableroMapa.astro';
+import Ruleta from '../components/Ruleta.astro'; 
 ---
 
 <Layout showLevelButtons={true}>
@@ -28,6 +29,8 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
 
     <p id="feedback-message" class="feedback"></p>
 
+    <TableroMapa />
+
     <Ruleta />
   </div>
 </Layout>
@@ -35,15 +38,15 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
 <style>
   /* ... Todo tu CSS original se mantiene exactamente igual ... */
   .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 2rem;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; 
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
@@ -490,9 +493,24 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA EN B
     generateQuestion(); // Esto genera nueva pregunta y reinicia el timer solo
   });
 
-  // 5. NUEVO: Escuchar los pasos para avanzar ficha (Consola)
+  // 5. ACTUALIZADO: Enviar el movimiento detallado hacia el TableroMapa
   document.addEventListener('avanzarFicha', (e: any) => {
-    console.log(`Beta: El jugador saca dado de ${e.detail.pasos}. Mover ficha.`);
+    const pasos = e.detail.pasos;
+    
+    try {
+      const datosTurno = turnManager.obtenerTurnoActual();
+      const equipoActivo = datosTurno.equipo;
+    
+      document.dispatchEvent(new CustomEvent('renderizarMovimientoTablero', {
+        detail: {
+          equipoName: equipoActivo.name,
+          equipoAvatar: equipoActivo.avatar,
+          pasos: pasos
+        }
+      }));
+    } catch (err) {
+      console.error("Error enviando datos del turno al tablero:", err);
+    }
   });
 
   generateQuestion();

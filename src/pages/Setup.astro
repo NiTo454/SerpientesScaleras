@@ -239,6 +239,25 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
+      <!-- SECCIÓN 5: Casillas del Tablero -->
+      <div class="setup-section">
+        <h3 class="section-title">
+          <span class="step-num">5</span> ¿Cuántas casillas tiene tu tablero físico?
+        </h3>
+        <div class="board-input-container">
+          <input 
+            type="number" 
+            id="input-board-tiles" 
+            class="board-input" 
+            value="100" 
+            min="10" 
+            max="200"
+            placeholder="Ej. 63"
+          />
+          <span class="input-suffix">casillas</span>
+        </div>
+      </div>
+
       <!-- Botón Comenzar y Caja de Validación -->
       <div class="actions-section">
         <div id="error-message" class="error-toast hidden">
@@ -309,6 +328,73 @@ import Layout from '../layouts/Layout.astro';
   .back-link:hover {
     color: #6D28D9;
     transform: translateY(-50%) translateX(-4px);
+  }
+
+  .board-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .board-input {
+    background: rgba(255, 255, 255, 0.8);
+    color: #1F1035;
+    border: 3px solid rgba(192, 132, 252, 0.2);
+    border-radius: 20px;
+    padding: 0.8rem 1.2rem;
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+    width: 140px;
+    outline: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .board-input:hover {
+    border-color: rgba(192, 132, 252, 0.5);
+    background: #fff;
+  }
+
+  /* Efecto de enfoque (focus) idéntico a tus botones morados activos */
+  .board-input:focus {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(243, 232, 255, 0.5));
+    border-color: #7C3AED;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
+    transform: scale(1.03);
+  }
+
+  .input-suffix {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #5C4A78;
+    letter-spacing: -0.02em;
+  }
+
+  /* Eliminar las flechas nativas molestas de los inputs numéricos */
+  .board-input::-webkit-outer-spin-button,
+  .board-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .board-input {
+    -moz-appearance: textfield; /* Para Firefox */
+  }
+
+  /* Ajuste responsivo para pantallas pequeñas */
+  @media (max-width: 650px) {
+    .board-input-container {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .board-input {
+      width: 100%;
+      max-width: 200px;
+    }
   }
 
   .setup-title {
@@ -829,12 +915,14 @@ import Layout from '../layouts/Layout.astro';
   interface SetupState {
     level: string;
     qty: number;
+    boardTiles: number;
     teams: Team[];
   }
 
   const state: SetupState = {
     level: 'Alpha',
     qty: 3,
+    boardTiles: 100,
     teams: [
       { id: 1, name: "Equipo León", avatar: "🦁", members: [], colorClass: "team-blue", hexColor: "#3B82F6" },
       { id: 2, name: "Equipo Zorro", avatar: "🦊", members: [], colorClass: "team-orange", hexColor: "#F97316" },
@@ -872,6 +960,12 @@ import Layout from '../layouts/Layout.astro';
 
     // Cargar configuraciones previas si existen
     loadFromLocalStorage();
+    
+    // CORREGIDO: Usamos el ID correcto que coincide con tu HTML 'input-board-tiles'
+    const boardInput = document.getElementById('input-board-tiles') as HTMLInputElement;
+    if (boardInput) {
+      boardInput.value = state.boardTiles.toString();
+    }
 
     // Enlazar eventos de inputs, avatares y miembros
     bindEvents();
@@ -888,6 +982,7 @@ import Layout from '../layouts/Layout.astro';
         const parsed = JSON.parse(saved);
         if (parsed.level) setLevel(parsed.level);
         if (parsed.qty) setTeamQuantity(parsed.qty);
+        if (parsed.boardTiles) state.boardTiles = parseInt(parsed.boardTiles, 10) || 100;
         if (parsed.teams && Array.isArray(parsed.teams)) {
           parsed.teams.forEach((t: any, index: number) => {
             if (index < state.teams.length) {
@@ -973,6 +1068,19 @@ import Layout from '../layouts/Layout.astro';
     // Eventos Nivel
     btnLevelAlpha?.addEventListener('click', () => setLevel('Alpha'));
     btnLevelBeta?.addEventListener('click', () => setLevel('Beta'));
+
+    // CORREGIDO: Sincronización limpia del input numérico sin bucles ni fallas lógicas
+    const boardInput = document.getElementById('input-board-tiles') as HTMLInputElement;
+    if (boardInput) {
+      boardInput.addEventListener('input', (e) => {
+        let val = parseInt((e.target as HTMLInputElement).value, 10);
+        if (isNaN(val) || val < 1) {
+          state.boardTiles = 100; // Respaldo por si borran el número
+        } else {
+          state.boardTiles = val;
+        }
+      });
+    }
 
     // Eventos Cantidad
     qtyButtons.forEach(btn => {
@@ -1112,7 +1220,6 @@ import Layout from '../layouts/Layout.astro';
 
     for (let i = 0; i < state.qty; i++) {
       const team = state.teams[i];
-      const card = teamCards[i];
       const emptyWarning = document.getElementById(`empty-warning-${i + 1}`);
 
       // Validar integrantes
@@ -1145,6 +1252,13 @@ import Layout from '../layouts/Layout.astro';
 
     // Limpiar alertas de error previas
     errorToast?.classList.add('hidden');
+
+    // ACTUALIZACIÓN DIRECTA: Doble chequeo del valor numérico antes de empaquetar
+    const boardInput = document.getElementById('input-board-tiles') as HTMLInputElement;
+    if (boardInput) {
+      const val = parseInt(boardInput.value, 10);
+      state.boardTiles = (!isNaN(val) && val > 0) ? val : 100;
+    }
 
     for (let i = 0; i < state.qty; i++) {
       const team = state.teams[i];
@@ -1192,10 +1306,11 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    // Guardar configuración limpia en LocalStorage (solo los equipos activos)
+    // Guardar configuración limpia en LocalStorage (incluyendo la clave boardTiles real)
     const finalData = {
       level: state.level,
       qty: state.qty,
+      boardTiles: state.boardTiles, // 👈 ¡GUARDADO INTEGRADO EXITOSAMENTE!
       teams: state.teams.slice(0, state.qty)
     };
 

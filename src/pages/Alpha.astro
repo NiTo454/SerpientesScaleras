@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import TableroMapa from '../components/TableroMapa.astro';
 import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA
 ---
 
@@ -24,6 +25,8 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA
     <p id="feedback-message" class="feedback"></p>
 
     <Ruleta />
+    <TableroMapa />
+
   </div>
 </Layout>
 
@@ -392,9 +395,24 @@ import Ruleta from '../components/Ruleta.astro'; // 1. IMPORTAMOS LA RULETA
     generateQuestion();
   });
 
-  // 5. OPCIONAL: Escuchar cuántas casillas debe avanzar (por si tienes código de fichas aquí)
+ // 5. ACTUALIZADO: Enviar el movimiento detallado hacia el TableroMapa
   document.addEventListener('avanzarFicha', (e: any) => {
-    console.log(`Mover la ficha del jugador: ${e.detail.pasos} espacios.`);
+    const pasos = e.detail.pasos;
+    
+    try {
+      const datosTurno = turnManager.obtenerTurnoActual();
+      const equipoActivo = datosTurno.equipo;
+    
+      document.dispatchEvent(new CustomEvent('renderizarMovimientoTablero', {
+        detail: {
+          equipoName: equipoActivo.name,
+          equipoAvatar: equipoActivo.avatar,
+          pasos: pasos
+        }
+      }));
+    } catch (err) {
+      console.error("Error enviando datos del turno al tablero:", err);
+    }
   });
 
   generateQuestion();
